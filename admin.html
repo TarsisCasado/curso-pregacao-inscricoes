@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Área Administrativa — Inscrições</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .admin { padding: 3rem 0; }
+    .admin__bar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .admin__count { font-weight: 700; color: var(--brand-dark); }
+    .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 700px; }
+    th, td { padding: 0.65rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { background: var(--brand); color: #fff; font-weight: 600; position: sticky; top: 0; }
+    tr:hover td { background: #faf5ff; }
+    .empty { text-align: center; color: var(--muted); padding: 3rem; }
+    .admin__actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .btn--sm { padding: 0.55rem 1.1rem; font-size: 0.9rem; }
+    .btn--danger { background: #fee2e2; color: #b91c1c; }
+    .btn--danger:hover { background: #fecaca; }
+  </style>
+</head>
+<body>
+  <header class="hero" style="padding: 3rem 0;">
+    <div class="container hero__content">
+      <h1 class="hero__title" style="font-size: 2rem;">Área Administrativa</h1>
+      <p class="hero__subtitle">Inscrições recebidas neste dispositivo</p>
+    </div>
+  </header>
+
+  <main class="container admin">
+    <div class="admin__bar">
+      <span class="admin__count" id="count">0 inscrições</span>
+      <div class="admin__actions">
+        <button class="btn btn--primary btn--sm" id="btn-csv">Exportar CSV</button>
+        <button class="btn btn--ghost btn--sm" id="btn-json">Exportar JSON</button>
+        <button class="btn btn--danger btn--sm" id="btn-limpar">Limpar tudo</button>
+        <a class="btn btn--ghost btn--sm" href="index.html">← Voltar</a>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th>#</th><th>Data</th><th>Nome</th><th>E-mail</th><th>Telefone</th>
+            <th>Idade</th><th>Cidade</th><th>Igreja</th><th>Função</th><th>Experiência</th><th>Mensagem</th>
+          </tr>
+        </thead>
+        <tbody id="corpo"></tbody>
+      </table>
+      <p class="empty" id="vazio" hidden>Nenhuma inscrição registrada neste dispositivo ainda.</p>
+    </div>
+    <p class="form__note" style="margin-top:1.5rem;">
+      As inscrições são armazenadas localmente no navegador. Para receber as
+      inscrições por e-mail/planilha, configure um endpoint em
+      <code>js/config.js</code>.
+    </p>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script>
+    (function () {
+      var KEY = (window.INSCRICAO_CONFIG || {}).STORAGE_KEY || "inscricoes_curso_pregacao";
+      var COLS = ["dataInscricao", "nome", "email", "telefone", "idade", "cidade", "igreja", "funcao", "experiencia", "mensagem"];
+      var LABELS = ["Data", "Nome", "E-mail", "Telefone", "Idade", "Cidade", "Igreja", "Função", "Experiência", "Mensagem"];
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+        catch (e) { return []; }
+      }
+
+      function fmtDate(iso) {
+        if (!iso) return "";
+        var d = new Date(iso);
+        return isNaN(d) ? iso : d.toLocaleString("pt-BR");
+      }
+
+      function render() {
+        var list = load();
+        document.getElementById("count").textContent =
+          list.length + (list.length === 1 ? " inscrição" : " inscrições");
+        var corpo = document.getElementById("corpo");
+        var vazio = document.getElementById("vazio");
+        corpo.innerHTML = "";
+        vazio.hidden = list.length > 0;
+        list.forEach(function (r, i) {
+          var tr = document.createElement("tr");
+          var cells = [i + 1, fmtDate(r.dataInscricao), r.nome, r.email, r.telefone,
+            r.idade, r.cidade, r.igreja, r.funcao, r.experiencia, r.mensagem];
+          cells.forEach(function (c) {
+            var td = document.createElement("td");
+            td.textContent = c == null ? "" : c;
+            tr.appendChild(td);
+          });
+          corpo.appendChild(tr);
+        });
+      }
+
+      function download(filename, content, type) {
+        var blob = new Blob([content], { type: type });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+      }
+
+      function toCSV(list) {
+        var esc = function (v) {
+          v = v == null ? "" : String(v);
+          return '"' + v.replace(/"/g, '""') + '"';
+        };
+        var rows = [LABELS.map(esc).join(",")];
+        list.forEach(function (r) {
+          rows.push(COLS.map(function (c) {
+            return esc(c === "dataInscricao" ? fmtDate(r[c]) : r[c]);
+          }).join(","));
+        });
+        return "﻿" + rows.join("\r\n");
+      }
+
+      document.getElementById("btn-csv").addEventListener("click", function () {
+        var list = load();
+        if (!list.length) return alert("Não há inscrições para exportar.");
+        download("inscricoes.csv", toCSV(list), "text/csv;charset=utf-8");
+      });
+      document.getElementById("btn-json").addEventListener("click", function () {
+        var list = load();
+        if (!list.length) return alert("Não há inscrições para exportar.");
+        download("inscricoes.json", JSON.stringify(list, null, 2), "application/json");
+      });
+      document.getElementById("btn-limpar").addEventListener("click", function () {
+        if (confirm("Tem certeza que deseja apagar TODAS as inscrições salvas neste dispositivo? Esta ação não pode ser desfeita.")) {
+          localStorage.removeItem(KEY);
+          render();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscrições — Curso de Noções Básicas de Pregação e Oratória</title>
+  <meta name="description" content="Inscreva-se no Curso de Noções Básicas de Pregação e Oratória, ministrado por Adelziro Junior (CONADEC)." />
+  <meta name="theme-color" content="#5b21b6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__overlay"></div>
+    <div class="container hero__content">
+      <p class="hero__eyebrow">CONADEC apresenta</p>
+      <h1 class="hero__title">Curso de Noções Básicas de Pregação e Oratória</h1>
+      <p class="hero__subtitle">Ministrado por <strong>Adelziro Junior</strong></p>
+      <p class="hero__lead">
+        Desenvolva a confiança, a técnica e a unção para comunicar a Palavra com
+        clareza e impacto. Aprenda os fundamentos da pregação expositiva, a
+        estruturar mensagens e a vencer o medo de falar em público.
+      </p>
+      <a href="#inscricao" class="btn btn--primary">Quero me inscrever</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="sobre">
+      <div class="container">
+        <h2 class="section__title">O que você vai aprender</h2>
+        <div class="cards">
+          <article class="card">
+            <div class="card__icon">📖</div>
+            <h3>Fundamentos da Pregação</h3>
+            <p>Princípios bíblicos da pregação e o papel do pregador na igreja.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon">🗂️</div>
+            <h3>Estrutura da Mensagem</h3>
+            <p>Como preparar, organizar e desenvolver um sermão do início ao fim.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon">🎤</div>
+            <h3>Oratória e Dicção</h3>
+            <p>Técnicas de voz, postura e comunicação para falar com naturalidade.</p>
+          </article>
+          <article class="card">
+            <div class="card__icon">💪</div>
+            <h3>Vencendo o Medo</h3>
+            <p>Estratégias práticas para superar a ansiedade ao falar em público.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="detalhes">
+      <div class="container details">
+        <h2 class="section__title">Informações do curso</h2>
+        <ul class="details__list">
+          <li><span>📅 Início</span> A definir — vagas limitadas</li>
+          <li><span>📍 Local</span> Sede da CONADEC</li>
+          <li><span>⏱️ Carga horária</span> Curso intensivo</li>
+          <li><span>💳 Investimento</span> Confirmado por e-mail após a inscrição</li>
+          <li><span>👤 Instrutor</span> Adelziro Junior</li>
+          <li><span>📜 Certificação</span> Certificado de participação</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="inscricao">
+      <div class="container form-wrapper">
+        <h2 class="section__title">Faça sua inscrição</h2>
+        <p class="section__intro">
+          Preencha o formulário abaixo. Você receberá a confirmação e os detalhes
+          do curso pelos contatos informados.
+        </p>
+
+        <form id="form-inscricao" class="form" novalidate>
+          <div class="field">
+            <label for="nome">Nome completo *</label>
+            <input type="text" id="nome" name="nome" autocomplete="name" required />
+            <small class="field__error" data-error-for="nome"></small>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="email">E-mail *</label>
+              <input type="email" id="email" name="email" autocomplete="email" required />
+              <small class="field__error" data-error-for="email"></small>
+            </div>
+            <div class="field">
+              <label for="telefone">Telefone / WhatsApp *</label>
+              <input type="tel" id="telefone" name="telefone" inputmode="numeric" placeholder="(00) 00000-0000" required />
+              <small class="field__error" data-error-for="telefone"></small>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="idade">Idade</label>
+              <input type="number" id="idade" name="idade" min="10" max="120" />
+              <small class="field__error" data-error-for="idade"></small>
+            </div>
+            <div class="field">
+              <label for="cidade">Cidade / Estado</label>
+              <input type="text" id="cidade" name="cidade" autocomplete="address-level2" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="igreja">Igreja / Congregação</label>
+            <input type="text" id="igreja" name="igreja" />
+          </div>
+
+          <div class="field">
+            <label for="funcao">Função / Ministério atual</label>
+            <select id="funcao" name="funcao">
+              <option value="">Selecione...</option>
+              <option>Membro</option>
+              <option>Obreiro(a)</option>
+              <option>Diácono(a)</option>
+              <option>Presbítero(a)</option>
+              <option>Evangelista</option>
+              <option>Pastor(a)</option>
+              <option>Líder de ministério</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="experiencia">Você já tem experiência com pregação?</label>
+            <select id="experiencia" name="experiencia">
+              <option value="">Selecione...</option>
+              <option>Nenhuma — quero começar</option>
+              <option>Pouca — pregações ocasionais</option>
+              <option>Já prego com frequência</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="mensagem">Por que deseja participar? (opcional)</label>
+            <textarea id="mensagem" name="mensagem" rows="3"></textarea>
+          </div>
+
+          <div class="field field--check">
+            <label class="check">
+              <input type="checkbox" id="consentimento" name="consentimento" required />
+              <span>Autorizo o uso dos meus dados para fins de inscrição e comunicação sobre o curso. *</span>
+            </label>
+            <small class="field__error" data-error-for="consentimento"></small>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full" id="btn-enviar">
+            Confirmar inscrição
+          </button>
+          <p class="form__note">* Campos obrigatórios</p>
+        </form>
+
+        <div class="form-success" id="form-success" hidden>
+          <div class="form-success__icon">✅</div>
+          <h3>Inscrição recebida!</h3>
+          <p id="success-text">
+            Obrigado por se inscrever. Em breve entraremos em contato com os
+            próximos passos.
+          </p>
+          <button class="btn btn--ghost" id="btn-nova">Fazer nova inscrição</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© <span id="ano"></span> CONADEC — Curso de Noções Básicas de Pregação e Oratória</p>
+      <p class="footer__small">Instrutor: Adelziro Junior</p>
+      <p class="footer__admin"><a href="admin.html">Área administrativa</a></p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
