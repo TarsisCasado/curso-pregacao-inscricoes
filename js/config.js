@@ -1,24 +1,44 @@
 /**
  * Configuração do sistema de inscrição.
  *
- * Para receber as inscrições por e-mail sem manter um servidor, use um
- * serviço de formulários como o Formspree (https://formspree.io) ou um
- * Google Apps Script Web App.
+ * ┌─────────────────────────────────────────────────────────────────────┐
+ * │ ARMAZENAMENTO EM NUVEM (Firebase / Firestore) — RECOMENDADO           │
+ * └─────────────────────────────────────────────────────────────────────┘
+ * As inscrições ficam guardadas em nuvem (banco de dados do Google),
+ * acessíveis de qualquer dispositivo — sem precisar de planilha.
  *
- * 1. Crie um formulário no serviço escolhido.
- * 2. Cole a URL de envio (endpoint) em FORM_ENDPOINT abaixo.
+ * Como configurar (passo a passo no README.md):
+ *   1. Crie um projeto gratuito em https://console.firebase.google.com
+ *   2. Ative o "Cloud Firestore" (modo de produção).
+ *   3. Em "Configurações do projeto" → "Seus apps" → adicione um app Web (</>)
+ *      e copie o objeto "firebaseConfig".
+ *   4. Cole os valores em FIREBASE abaixo.
  *
- * Se FORM_ENDPOINT ficar vazio, o sistema funciona em "modo local":
- * as inscrições são salvas no navegador (localStorage) e podem ser
- * visualizadas e exportadas em CSV na página admin.html.
+ * Se FIREBASE ficar sem preencher, o sistema usa o "modo local":
+ * as inscrições são salvas apenas no navegador (localStorage).
  */
 window.INSCRICAO_CONFIG = {
-  // Ex.: "https://formspree.io/f/seu-id"
+  // Cole aqui o firebaseConfig do seu projeto (Console do Firebase).
+  // Deixe os campos vazios para usar o modo local.
+  FIREBASE: {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: "",
+  },
+
+  // Nome da "coleção" onde as inscrições serão guardadas no Firestore.
+  COLLECTION: "inscricoes",
+
+  // (Opcional) Endpoint de formulário (Formspree/Apps Script) como alternativa.
+  // Só é usado se FIREBASE não estiver configurado.
   FORM_ENDPOINT: "",
 
   // Nome do curso (usado nas mensagens e no assunto do e-mail).
   CURSO: "Curso de Noções Básicas de Pregação e Oratória",
 
-  // Chave de armazenamento local.
+  // Chave de armazenamento local (fallback / cópia de segurança no aparelho).
   STORAGE_KEY: "inscricoes_curso_pregacao",
 };

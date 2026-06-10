@@ -26,7 +26,7 @@
   <header class="hero" style="padding: 3rem 0;">
     <div class="container hero__content">
       <h1 class="hero__title" style="font-size: 2rem;">Área Administrativa</h1>
-      <p class="hero__subtitle">Inscrições recebidas neste dispositivo</p>
+      <p class="hero__subtitle" id="fonte">Carregando inscrições…</p>
     </div>
   </header>
 
@@ -51,25 +51,45 @@
         </thead>
         <tbody id="corpo"></tbody>
       </table>
-      <p class="empty" id="vazio" hidden>Nenhuma inscrição registrada neste dispositivo ainda.</p>
+      <p class="empty" id="vazio" hidden>Nenhuma inscrição registrada ainda.</p>
     </div>
-    <p class="form__note" style="margin-top:1.5rem;">
-      As inscrições são armazenadas localmente no navegador. Para receber as
-      inscrições por e-mail/planilha, configure um endpoint em
-      <code>js/config.js</code>.
-    </p>
+    <p class="form__note" id="rodape" style="margin-top:1.5rem;"></p>
   </main>
 
+  <!-- Firebase (armazenamento em nuvem). Se não configurar, usa modo local. -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/firebase.js"></script>
   <script>
     (function () {
-      var KEY = (window.INSCRICAO_CONFIG || {}).STORAGE_KEY || "inscricoes_curso_pregacao";
+      var CONFIG = window.INSCRICAO_CONFIG || {};
+      var KEY = CONFIG.STORAGE_KEY || "inscricoes_curso_pregacao";
+      var COLLECTION = CONFIG.COLLECTION || "inscricoes";
       var COLS = ["dataInscricao", "nome", "email", "telefone", "idade", "cidade", "igreja", "funcao", "experiencia", "mensagem"];
       var LABELS = ["Data", "Nome", "E-mail", "Telefone", "Idade", "Cidade", "Igreja", "Função", "Experiência", "Mensagem"];
 
-      function load() {
+      var usandoNuvem = !!window.FIRESTORE;
+      var dados = []; // lista atual em memória (com _id quando vier da nuvem)
+
+      function loadLocal() {
         try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
         catch (e) { return []; }
+      }
+
+      function loadCloud() {
+        return window.FIRESTORE.collection(COLLECTION)
+          .orderBy("dataInscricao", "desc")
+          .get()
+          .then(function (snap) {
+            var list = [];
+            snap.forEach(function (doc) {
+              var r = doc.data();
+              r._id = doc.id;
+              list.push(r);
+            });
+            return list;
+          });
       }
 
       function fmtDate(iso) {
@@ -79,14 +99,13 @@
       }
 
       function render() {
-        var list = load();
         document.getElementById("count").textContent =
-          list.length + (list.length === 1 ? " inscrição" : " inscrições");
+          dados.length + (dados.length === 1 ? " inscrição" : " inscrições");
         var corpo = document.getElementById("corpo");
         var vazio = document.getElementById("vazio");
         corpo.innerHTML = "";
-        vazio.hidden = list.length > 0;
-        list.forEach(function (r, i) {
+        vazio.hidden = dados.length > 0;
+        dados.forEach(function (r, i) {
           var tr = document.createElement("tr");
           var cells = [i + 1, fmtDate(r.dataInscricao), r.nome, r.email, r.telefone,
             r.idade, r.cidade, r.igreja, r.funcao, r.experiencia, r.mensagem];
@@ -96,6 +115,32 @@
             tr.appendChild(td);
           });
           corpo.appendChild(tr);
+        });
+      }
+
+      function setFonte() {
+        var fonte = document.getElementById("fonte");
+        var rodape = document.getElementById("rodape");
+        if (usandoNuvem) {
+          fonte.textContent = "Inscrições em nuvem (Firebase) — visíveis de qualquer dispositivo";
+          rodape.innerHTML = "As inscrições ficam guardadas em nuvem no Firestore. " +
+            "Você também pode vê-las no <a href=\"https://console.firebase.google.com\" target=\"_blank\" rel=\"noopener\">Console do Firebase</a>.";
+        } else {
+          fonte.textContent = "Inscrições recebidas neste dispositivo (modo local)";
+          rodape.innerHTML = "⚠️ Modo local: as inscrições estão salvas apenas neste " +
+            "navegador. Para receber de qualquer dispositivo, configure o Firebase em <code>js/config.js</code> (veja o README).";
+        }
+      }
+
+      function carregar() {
+        var p = usandoNuvem ? loadCloud() : Promise.resolve(loadLocal());
+        return p.then(function (list) {
+          dados = list;
+          render();
+        }).catch(function (err) {
+          console.error(err);
+          alert("Não foi possível carregar as inscrições da nuvem.\n\n" +
+            "Verifique a configuração do Firebase e as regras do Firestore.\n\n" + err.message);
         });
       }
 
@@ -123,23 +168,34 @@
       }
 
       document.getElementById("btn-csv").addEventListener("click", function () {
-        var list = load();
-        if (!list.length) return alert("Não há inscrições para exportar.");
-        download("inscricoes.csv", toCSV(list), "text/csv;charset=utf-8");
+        if (!dados.length) return alert("Não há inscrições para exportar.");
+        download("inscricoes.csv", toCSV(dados), "text/csv;charset=utf-8");
       });
       document.getElementById("btn-json").addEventListener("click", function () {
-        var list = load();
-        if (!list.length) return alert("Não há inscrições para exportar.");
-        download("inscricoes.json", JSON.stringify(list, null, 2), "application/json");
+        if (!dados.length) return alert("Não há inscrições para exportar.");
+        download("inscricoes.json", JSON.stringify(dados, null, 2), "application/json");
       });
       document.getElementById("btn-limpar").addEventListener("click", function () {
-        if (confirm("Tem certeza que deseja apagar TODAS as inscrições salvas neste dispositivo? Esta ação não pode ser desfeita.")) {
-          localStorage.removeItem(KEY);
-          render();
+        if (usandoNuvem) {
+          if (!dados.length) return alert("Não há inscrições para apagar.");
+          if (!confirm("Apagar TODAS as " + dados.length + " inscrições da NUVEM? Esta ação não pode ser desfeita.")) return;
+          var batch = window.FIRESTORE.batch();
+          dados.forEach(function (r) {
+            if (r._id) batch.delete(window.FIRESTORE.collection(COLLECTION).doc(r._id));
+          });
+          batch.commit().then(carregar).catch(function (err) {
+            alert("Erro ao apagar: " + err.message);
+          });
+        } else {
+          if (confirm("Tem certeza que deseja apagar TODAS as inscrições salvas neste dispositivo? Esta ação não pode ser desfeita.")) {
+            localStorage.removeItem(KEY);
+            carregar();
+          }
         }
       });
 
-      render();
+      setFonte();
+      carregar();
     })();
   </script>
 </body>
