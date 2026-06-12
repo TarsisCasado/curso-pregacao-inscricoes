@@ -102,6 +102,11 @@
     });
   }
 
+  function sendToFirestore(record) {
+    var col = CONFIG.COLLECTION || "inscricoes";
+    return window.FIRESTORE.collection(col).add(record);
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!validate()) {
@@ -121,20 +126,25 @@
       showSuccess();
     };
 
-    if (CONFIG.FORM_ENDPOINT) {
-      sendToEndpoint(record).then(done).catch(function (err) {
-        console.error(err);
-        // Mesmo com erro de rede, mantemos a cópia local para não perder o dado.
-        saveLocal(record);
-        btnEnviar.disabled = false;
-        btnEnviar.textContent = "Confirmar inscrição";
-        alert(
-          "Não foi possível enviar agora, mas sua inscrição foi salva neste " +
-          "dispositivo. Por favor, tente novamente ou entre em contato."
-        );
-      });
+    var falhaEnvio = function (err) {
+      console.error(err);
+      // Mesmo com erro de rede, mantemos a cópia local para não perder o dado.
+      saveLocal(record);
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = "Confirmar inscrição";
+      alert(
+        "Não foi possível enviar agora, mas sua inscrição foi salva neste " +
+        "dispositivo. Por favor, tente novamente ou entre em contato."
+      );
+    };
+
+    if (window.FIRESTORE) {
+      // Armazenamento em nuvem (Firebase/Firestore).
+      sendToFirestore(record).then(done).catch(falhaEnvio);
+    } else if (CONFIG.FORM_ENDPOINT) {
+      sendToEndpoint(record).then(done).catch(falhaEnvio);
     } else {
-      // Modo local (sem endpoint configurado).
+      // Modo local (sem nuvem nem endpoint configurado).
       setTimeout(done, 400);
     }
   });
