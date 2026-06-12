@@ -21,12 +21,12 @@ window.INSCRICAO_CONFIG = {
   // Cole aqui o firebaseConfig do seu projeto (Console do Firebase).
   // Deixe os campos vazios para usar o modo local.
   FIREBASE: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: "",
+    apiKey: "AIzaSyCtMkbX0IcQJ1x2obJWit39SXrqWOidde8",
+    authDomain: "curso-pregacao.firebaseapp.com",
+    projectId: "curso-pregacao",
+    storageBucket: "curso-pregacao.firebasestorage.app",
+    messagingSenderId: "860878466477",
+    appId: "1:860878466477:web:811bed2912bf11ff724524",
   },
 
   // Nome da "coleção" onde as inscrições serão guardadas no Firestore.
