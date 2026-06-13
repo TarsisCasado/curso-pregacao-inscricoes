@@ -1,6 +1,9 @@
 /**
- * Inicializa o Firebase/Firestore se houver configuração válida.
- * Expõe window.FIRESTORE (instância) ou null (modo local).
+ * Inicializa o Firebase (Firestore, Auth e Storage) se houver configuração.
+ * Expõe:
+ *   window.FIRESTORE       — banco de dados (ou null em modo local)
+ *   window.FIREBASE_AUTH   — autenticação do admin (ou null)
+ *   window.FIREBASE_STORAGE— armazenamento de comprovantes (ou null)
  *
  * Usa o SDK "compat" do Firebase, carregado via CDN no HTML.
  */
@@ -9,20 +12,16 @@
 
   var cfg = (window.INSCRICAO_CONFIG || {}).FIREBASE || {};
   window.FIRESTORE = null;
+  window.FIREBASE_AUTH = null;
+  window.FIREBASE_STORAGE = null;
   window.FIREBASE_READY = false;
 
-  var configurado = cfg.apiKey && cfg.projectId;
-
-  if (!configurado) {
-    // Modo local: nenhuma configuração de nuvem informada.
-    return;
+  if (!cfg.apiKey || !cfg.projectId) {
+    return; // Modo local: sem configuração de nuvem.
   }
 
   if (typeof firebase === "undefined") {
-    console.error(
-      "Firebase SDK não carregou. Verifique se os scripts do Firebase " +
-      "estão incluídos no HTML antes de firebase.js."
-    );
+    console.error("Firebase SDK não carregou. Verifique os scripts no HTML.");
     return;
   }
 
@@ -31,6 +30,8 @@
       firebase.initializeApp(cfg);
     }
     window.FIRESTORE = firebase.firestore();
+    if (firebase.auth) window.FIREBASE_AUTH = firebase.auth();
+    if (firebase.storage) window.FIREBASE_STORAGE = firebase.storage();
     window.FIREBASE_READY = true;
   } catch (e) {
     console.error("Falha ao inicializar o Firebase:", e);

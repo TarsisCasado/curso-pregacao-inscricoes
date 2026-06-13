@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inscrições — Curso de Noções Básicas de Pregação e Oratória</title>
-  <meta name="description" content="Inscreva-se no Curso de Noções Básicas de Pregação e Oratória, ministrado por Adelziro Junior (CONADEC)." />
-  <meta name="theme-color" content="#5b21b6" />
+  <meta name="description" content="Inscreva-se no Curso de Noções Básicas de Pregação e Oratória, ministrado por Adelziro Junior." />
+  <meta name="theme-color" content="#0b2545" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -15,7 +15,7 @@
   <header class="hero">
     <div class="hero__overlay"></div>
     <div class="container hero__content">
-      <p class="hero__eyebrow">CONADEC apresenta</p>
+      <p class="hero__eyebrow">Inscrições abertas — vagas limitadas</p>
       <h1 class="hero__title">Curso de Noções Básicas de Pregação e Oratória</h1>
       <p class="hero__subtitle">Ministrado por <strong>Adelziro Junior</strong></p>
       <p class="hero__lead">
@@ -23,7 +23,9 @@
         clareza e impacto. Aprenda os fundamentos da pregação expositiva, a
         estruturar mensagens e a vencer o medo de falar em público.
       </p>
-      <a href="#inscricao" class="btn btn--primary">Quero me inscrever</a>
+      <p class="hero__price">Investimento <strong>R$ 100,00</strong> — à vista ou em até 2x</p>
+      <br />
+      <a href="#inscricao" class="btn btn--primary">Realizar inscrição</a>
     </div>
   </header>
 
@@ -56,21 +58,42 @@
       </div>
     </section>
 
-    <section class="section section--alt" id="detalhes">
+    <section class="section section--alt" id="instrutor">
+      <div class="container">
+        <h2 class="section__title">O Ministrante</h2>
+        <div class="instructor">
+          <img class="instructor__photo" id="instrutor-foto" alt="Foto de Adelziro Junior" />
+          <div>
+            <h3 class="instructor__name" id="instrutor-nome">Adelziro Junior</h3>
+            <p class="instructor__bio" id="instrutor-bio">
+              Curso ministrado por Adelziro Junior, Graduado em Bacharel em
+              Teologia e Presidente do Conselho de Doutrina, Educação e Cultura
+              da CONADEC.
+            </p>
+            <ul class="instructor__tags">
+              <li>Bacharel em Teologia</li>
+              <li>Presidente do Conselho de Doutrina, Educação e Cultura — CONADEC</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="detalhes">
       <div class="container details">
         <h2 class="section__title">Informações do curso</h2>
         <ul class="details__list">
           <li><span>📅 Início</span> A definir — vagas limitadas</li>
-          <li><span>📍 Local</span> Sede da CONADEC</li>
-          <li><span>⏱️ Carga horária</span> Curso intensivo</li>
-          <li><span>💳 Investimento</span> Confirmado por e-mail após a inscrição</li>
+          <li><span>📍 Local</span> A confirmar</li>
+          <li><span>💳 Investimento</span> R$ 100,00 (à vista ou em até 2x)</li>
+          <li><span>💸 Pagamento</span> PIX ou dinheiro</li>
           <li><span>👤 Instrutor</span> Adelziro Junior</li>
           <li><span>📜 Certificação</span> Certificado de participação</li>
         </ul>
       </div>
     </section>
 
-    <section class="section" id="inscricao">
+    <section class="section section--alt" id="inscricao">
       <div class="container form-wrapper">
         <h2 class="section__title">Faça sua inscrição</h2>
         <p class="section__intro">
@@ -79,70 +102,91 @@
         </p>
 
         <form id="form-inscricao" class="form" novalidate>
+          <h3 class="form__group-title">Dados pessoais</h3>
+
           <div class="field">
             <label for="nome">Nome completo *</label>
             <input type="text" id="nome" name="nome" autocomplete="name" required />
             <small class="field__error" data-error-for="nome"></small>
           </div>
 
+          <div class="field">
+            <label for="endereco">Endereço completo *</label>
+            <input type="text" id="endereco" name="endereco" autocomplete="street-address" placeholder="Rua, número, bairro, cidade/UF" required />
+            <small class="field__error" data-error-for="endereco"></small>
+          </div>
+
           <div class="field-row">
-            <div class="field">
-              <label for="email">E-mail *</label>
-              <input type="email" id="email" name="email" autocomplete="email" required />
-              <small class="field__error" data-error-for="email"></small>
-            </div>
             <div class="field">
               <label for="telefone">Telefone / WhatsApp *</label>
               <input type="tel" id="telefone" name="telefone" inputmode="numeric" placeholder="(00) 00000-0000" required />
               <small class="field__error" data-error-for="telefone"></small>
             </div>
+            <div class="field">
+              <label for="email">E-mail *</label>
+              <input type="email" id="email" name="email" autocomplete="email" required />
+              <small class="field__error" data-error-for="email"></small>
+            </div>
           </div>
+
+          <h3 class="form__group-title">Dados ministeriais</h3>
+
+          <div class="field">
+            <label for="congregacao">Congregação *</label>
+            <input type="text" id="congregacao" name="congregacao" required />
+            <small class="field__error" data-error-for="congregacao"></small>
+          </div>
+
+          <div class="field">
+            <label for="condicao">Condição ministerial *</label>
+            <select id="condicao" name="condicao" required>
+              <option value="">Selecione...</option>
+              <option>Membro</option>
+              <option>Auxiliar</option>
+              <option>Diácono</option>
+              <option>Presbítero</option>
+              <option>Evangelista</option>
+              <option>Pastor</option>
+              <option>Missionário</option>
+              <option>Outro</option>
+            </select>
+            <small class="field__error" data-error-for="condicao"></small>
+          </div>
+
+          <div class="field" id="campo-outro" hidden>
+            <label for="condicao_outro">Especifique a condição ministerial *</label>
+            <input type="text" id="condicao_outro" name="condicao_outro" />
+            <small class="field__error" data-error-for="condicao_outro"></small>
+          </div>
+
+          <h3 class="form__group-title">Pagamento</h3>
 
           <div class="field-row">
             <div class="field">
-              <label for="idade">Idade</label>
-              <input type="number" id="idade" name="idade" min="10" max="120" />
-              <small class="field__error" data-error-for="idade"></small>
+              <label for="forma_pagamento">Forma de pagamento *</label>
+              <select id="forma_pagamento" name="forma_pagamento" required>
+                <option value="">Selecione...</option>
+                <option>PIX</option>
+                <option>Dinheiro</option>
+              </select>
+              <small class="field__error" data-error-for="forma_pagamento"></small>
             </div>
             <div class="field">
-              <label for="cidade">Cidade / Estado</label>
-              <input type="text" id="cidade" name="cidade" autocomplete="address-level2" />
+              <label for="parcelamento">Parcelamento *</label>
+              <select id="parcelamento" name="parcelamento" required>
+                <option value="">Selecione...</option>
+                <option>À vista</option>
+                <option>2x</option>
+              </select>
+              <small class="field__error" data-error-for="parcelamento"></small>
             </div>
           </div>
 
           <div class="field">
-            <label for="igreja">Igreja / Congregação</label>
-            <input type="text" id="igreja" name="igreja" />
-          </div>
-
-          <div class="field">
-            <label for="funcao">Função / Ministério atual</label>
-            <select id="funcao" name="funcao">
-              <option value="">Selecione...</option>
-              <option>Membro</option>
-              <option>Obreiro(a)</option>
-              <option>Diácono(a)</option>
-              <option>Presbítero(a)</option>
-              <option>Evangelista</option>
-              <option>Pastor(a)</option>
-              <option>Líder de ministério</option>
-              <option>Outro</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="experiencia">Você já tem experiência com pregação?</label>
-            <select id="experiencia" name="experiencia">
-              <option value="">Selecione...</option>
-              <option>Nenhuma — quero começar</option>
-              <option>Pouca — pregações ocasionais</option>
-              <option>Já prego com frequência</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="mensagem">Por que deseja participar? (opcional)</label>
-            <textarea id="mensagem" name="mensagem" rows="3"></textarea>
+            <label for="comprovante">Comprovante de pagamento (opcional)</label>
+            <input type="file" id="comprovante" name="comprovante" accept="image/jpeg,image/png,application/pdf" />
+            <small class="field__hint">Aceita JPG, PNG ou PDF (até 5 MB). Pode enviar depois, se preferir.</small>
+            <small class="field__error" data-error-for="comprovante"></small>
           </div>
 
           <div class="field field--check">
@@ -154,7 +198,7 @@
           </div>
 
           <button type="submit" class="btn btn--primary btn--full" id="btn-enviar">
-            Confirmar inscrição
+            Realizar inscrição
           </button>
           <p class="form__note">* Campos obrigatórios</p>
         </form>
@@ -174,15 +218,16 @@
 
   <footer class="footer">
     <div class="container">
-      <p>© <span id="ano"></span> CONADEC — Curso de Noções Básicas de Pregação e Oratória</p>
+      <p>© <span id="ano"></span> Curso de Noções Básicas de Pregação e Oratória</p>
       <p class="footer__small">Instrutor: Adelziro Junior</p>
       <p class="footer__admin"><a href="admin.html">Área administrativa</a></p>
     </div>
   </footer>
 
-  <!-- Firebase (armazenamento em nuvem). Se não configurar, usa modo local. -->
+  <!-- Firebase (armazenamento em nuvem). -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="js/config.js"></script>
   <script src="js/firebase.js"></script>
   <script src="js/app.js"></script>

@@ -6,59 +6,91 @@
   <title>Área Administrativa — Inscrições</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  <style>
-    .admin { padding: 3rem 0; }
-    .admin__bar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .admin__count { font-weight: 700; color: var(--brand-dark); }
-    .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 700px; }
-    th, td { padding: 0.65rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    th { background: var(--brand); color: #fff; font-weight: 600; position: sticky; top: 0; }
-    tr:hover td { background: #faf5ff; }
-    .empty { text-align: center; color: var(--muted); padding: 3rem; }
-    .admin__actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-    .btn--sm { padding: 0.55rem 1.1rem; font-size: 0.9rem; }
-    .btn--danger { background: #fee2e2; color: #b91c1c; }
-    .btn--danger:hover { background: #fecaca; }
-  </style>
 </head>
 <body>
-  <header class="hero" style="padding: 3rem 0;">
+  <header class="hero" style="padding: 2.5rem 0;">
     <div class="container hero__content">
       <h1 class="hero__title" style="font-size: 2rem;">Área Administrativa</h1>
-      <p class="hero__subtitle" id="fonte">Carregando inscrições…</p>
+      <p class="hero__subtitle" id="fonte" style="margin:0;">Curso de Pregação e Oratória</p>
     </div>
   </header>
 
-  <main class="container admin">
-    <div class="admin__bar">
-      <span class="admin__count" id="count">0 inscrições</span>
-      <div class="admin__actions">
-        <button class="btn btn--primary btn--sm" id="btn-csv">Exportar CSV</button>
-        <button class="btn btn--ghost btn--sm" id="btn-json">Exportar JSON</button>
-        <button class="btn btn--danger btn--sm" id="btn-limpar">Limpar tudo</button>
-        <a class="btn btn--ghost btn--sm" href="index.html">← Voltar</a>
+  <!-- LOGIN -->
+  <div class="container" id="tela-login">
+    <form class="login-box" id="form-login">
+      <h2>Acesso do administrador</h2>
+      <div class="field">
+        <label for="login-email">Usuário (e-mail)</label>
+        <input type="email" id="login-email" autocomplete="username" required />
       </div>
+      <div class="field">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" autocomplete="current-password" required />
+      </div>
+      <small class="field__error" id="login-erro"></small>
+      <button type="submit" class="btn btn--primary btn--full" id="btn-login">Entrar</button>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <main class="container admin" id="tela-dashboard" hidden>
+    <div class="admin__bar">
+      <span class="admin__count" id="admin-user" style="color:var(--brand);font-weight:700;"></span>
+      <div class="admin__actions">
+        <button class="btn btn--primary btn--sm" id="btn-xlsx">Exportar Excel</button>
+        <button class="btn btn--primary btn--sm" id="btn-pdf">Exportar PDF</button>
+        <button class="btn btn--ghost btn--sm" id="btn-csv">Exportar CSV</button>
+        <button class="btn btn--ghost btn--sm" id="btn-sair">Sair</button>
+        <a class="btn btn--ghost btn--sm" href="index.html">← Site</a>
+      </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="stats">
+      <div class="stat"><div class="stat__label">Total de inscritos</div><div class="stat__value" id="st-total">0</div></div>
+      <div class="stat"><div class="stat__label">Arrecadação prevista</div><div class="stat__value" id="st-arrecadacao">R$ 0</div></div>
+      <div class="stat"><div class="stat__label">Pagamentos à vista</div><div class="stat__value" id="st-avista">0</div></div>
+      <div class="stat"><div class="stat__label">Pagamentos parcelados</div><div class="stat__value" id="st-parcelado">0</div></div>
+    </div>
+
+    <div class="by-congregacao">
+      <h3>Inscrições por congregação</h3>
+      <ul id="por-congregacao"></ul>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <input type="search" id="f-nome" placeholder="🔍 Pesquisar por nome..." />
+      <select id="f-congregacao"><option value="">Todas as congregações</option></select>
+      <select id="f-condicao"><option value="">Todas as condições</option></select>
+      <select id="f-pagamento"><option value="">Todas as formas de pagamento</option></select>
     </div>
 
     <div class="table-wrap">
       <table id="tabela">
         <thead>
           <tr>
-            <th>#</th><th>Data</th><th>Nome</th><th>E-mail</th><th>Telefone</th>
-            <th>Idade</th><th>Cidade</th><th>Igreja</th><th>Função</th><th>Experiência</th><th>Mensagem</th>
+            <th>#</th><th>Data</th><th>Nome</th><th>Telefone</th><th>E-mail</th>
+            <th>Endereço</th><th>Congregação</th><th>Condição</th>
+            <th>Pagamento</th><th>Parcelas</th><th>Comprovante</th>
           </tr>
         </thead>
         <tbody id="corpo"></tbody>
       </table>
-      <p class="empty" id="vazio" hidden>Nenhuma inscrição registrada ainda.</p>
+      <p class="empty" id="vazio" hidden>Nenhuma inscrição encontrada.</p>
     </div>
     <p class="form__note" id="rodape" style="margin-top:1.5rem;"></p>
   </main>
 
-  <!-- Firebase (armazenamento em nuvem). Se não configurar, usa modo local. -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <!-- Bibliotecas de exportação -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/firebase.js"></script>
   <script>
@@ -66,84 +98,176 @@
       var CONFIG = window.INSCRICAO_CONFIG || {};
       var KEY = CONFIG.STORAGE_KEY || "inscricoes_curso_pregacao";
       var COLLECTION = CONFIG.COLLECTION || "inscricoes";
-      var COLS = ["dataInscricao", "nome", "email", "telefone", "idade", "cidade", "igreja", "funcao", "experiencia", "mensagem"];
-      var LABELS = ["Data", "Nome", "E-mail", "Telefone", "Idade", "Cidade", "Igreja", "Função", "Experiência", "Mensagem"];
+      var VALOR = CONFIG.VALOR || 0;
+
+      var COLS = ["dataInscricao", "nome", "telefone", "email", "endereco", "congregacao", "condicao", "forma_pagamento", "parcelamento", "comprovanteUrl"];
+      var LABELS = ["Data", "Nome", "Telefone", "E-mail", "Endereço", "Congregação", "Condição", "Forma de Pagamento", "Parcelamento", "Comprovante"];
 
       var usandoNuvem = !!window.FIRESTORE;
-      var dados = []; // lista atual em memória (com _id quando vier da nuvem)
+      var temAuth = !!window.FIREBASE_AUTH;
+      var dados = [];      // todos os registros
+      var filtrados = [];  // após filtros
 
+      var $ = function (id) { return document.getElementById(id); };
+
+      // ---------- Autenticação ----------
+      function mostrarDashboard(email) {
+        $("tela-login").hidden = true;
+        $("tela-dashboard").hidden = false;
+        $("admin-user").textContent = email ? ("Conectado: " + email) : "";
+        carregar();
+      }
+      function mostrarLogin() {
+        $("tela-login").hidden = false;
+        $("tela-dashboard").hidden = true;
+      }
+
+      if (temAuth) {
+        window.FIREBASE_AUTH.onAuthStateChanged(function (user) {
+          if (user) mostrarDashboard(user.email); else mostrarLogin();
+        });
+        $("form-login").addEventListener("submit", function (e) {
+          e.preventDefault();
+          $("login-erro").textContent = "";
+          $("btn-login").disabled = true;
+          window.FIREBASE_AUTH
+            .signInWithEmailAndPassword($("login-email").value.trim(), $("login-senha").value)
+            .catch(function (err) {
+              $("login-erro").textContent = "Usuário ou senha inválidos.";
+              console.error(err);
+            })
+            .finally(function () { $("btn-login").disabled = false; });
+        });
+        $("btn-sair").addEventListener("click", function () { window.FIREBASE_AUTH.signOut(); });
+      } else {
+        // Sem Firebase Auth: modo local (sem login).
+        mostrarDashboard("");
+        $("btn-sair").style.display = "none";
+      }
+
+      // ---------- Carregamento dos dados ----------
       function loadLocal() {
         try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
         catch (e) { return []; }
       }
-
       function loadCloud() {
-        return window.FIRESTORE.collection(COLLECTION)
-          .orderBy("dataInscricao", "desc")
-          .get()
+        return window.FIRESTORE.collection(COLLECTION).orderBy("dataInscricao", "desc").get()
           .then(function (snap) {
             var list = [];
-            snap.forEach(function (doc) {
-              var r = doc.data();
-              r._id = doc.id;
-              list.push(r);
-            });
+            snap.forEach(function (doc) { var r = doc.data(); r._id = doc.id; list.push(r); });
             return list;
           });
       }
+      function carregar() {
+        var p = usandoNuvem ? loadCloud() : Promise.resolve(loadLocal());
+        return p.then(function (list) {
+          dados = list;
+          montarFiltros();
+          aplicarFiltros();
+        }).catch(function (err) {
+          console.error(err);
+          alert("Não foi possível carregar as inscrições.\n\n" + err.message);
+        });
+      }
 
+      // ---------- Filtros ----------
+      function unicos(campo) {
+        var set = {};
+        dados.forEach(function (r) { if (r[campo]) set[r[campo]] = true; });
+        return Object.keys(set).sort();
+      }
+      function preencherSelect(sel, valores) {
+        var atual = sel.value;
+        sel.length = 1; // mantém a primeira opção ("Todas...")
+        valores.forEach(function (v) {
+          var o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o);
+        });
+        sel.value = atual;
+      }
+      function montarFiltros() {
+        preencherSelect($("f-congregacao"), unicos("congregacao"));
+        preencherSelect($("f-condicao"), unicos("condicao"));
+        preencherSelect($("f-pagamento"), unicos("forma_pagamento"));
+      }
+      ["f-nome", "f-congregacao", "f-condicao", "f-pagamento"].forEach(function (id) {
+        $(id).addEventListener("input", aplicarFiltros);
+        $(id).addEventListener("change", aplicarFiltros);
+      });
+
+      function aplicarFiltros() {
+        var nome = $("f-nome").value.trim().toLowerCase();
+        var cong = $("f-congregacao").value;
+        var cond = $("f-condicao").value;
+        var pag = $("f-pagamento").value;
+        filtrados = dados.filter(function (r) {
+          if (nome && (r.nome || "").toLowerCase().indexOf(nome) === -1) return false;
+          if (cong && r.congregacao !== cong) return false;
+          if (cond && r.condicao !== cond) return false;
+          if (pag && r.forma_pagamento !== pag) return false;
+          return true;
+        });
+        render();
+        atualizarIndicadores();
+      }
+
+      // ---------- Indicadores ----------
+      function brl(n) { return "R$ " + (n || 0).toLocaleString("pt-BR"); }
+      function atualizarIndicadores() {
+        var total = dados.length;
+        var avista = dados.filter(function (r) { return r.parcelamento === "À vista"; }).length;
+        var parcelado = dados.filter(function (r) { return r.parcelamento === "2x"; }).length;
+        $("st-total").textContent = total;
+        $("st-arrecadacao").textContent = brl(total * VALOR);
+        $("st-avista").textContent = avista;
+        $("st-parcelado").textContent = parcelado;
+
+        var porCong = {};
+        dados.forEach(function (r) { var c = r.congregacao || "—"; porCong[c] = (porCong[c] || 0) + 1; });
+        var ul = $("por-congregacao");
+        ul.innerHTML = "";
+        Object.keys(porCong).sort().forEach(function (c) {
+          var li = document.createElement("li");
+          li.innerHTML = c + ": <b>" + porCong[c] + "</b>";
+          ul.appendChild(li);
+        });
+        if (!Object.keys(porCong).length) ul.innerHTML = "<li>Sem inscrições ainda.</li>";
+      }
+
+      // ---------- Tabela ----------
       function fmtDate(iso) {
         if (!iso) return "";
         var d = new Date(iso);
         return isNaN(d) ? iso : d.toLocaleString("pt-BR");
       }
-
       function render() {
-        document.getElementById("count").textContent =
-          dados.length + (dados.length === 1 ? " inscrição" : " inscrições");
-        var corpo = document.getElementById("corpo");
-        var vazio = document.getElementById("vazio");
+        var corpo = $("corpo");
         corpo.innerHTML = "";
-        vazio.hidden = dados.length > 0;
-        dados.forEach(function (r, i) {
+        $("vazio").hidden = filtrados.length > 0;
+        filtrados.forEach(function (r, i) {
           var tr = document.createElement("tr");
-          var cells = [i + 1, fmtDate(r.dataInscricao), r.nome, r.email, r.telefone,
-            r.idade, r.cidade, r.igreja, r.funcao, r.experiencia, r.mensagem];
-          cells.forEach(function (c) {
-            var td = document.createElement("td");
-            td.textContent = c == null ? "" : c;
-            tr.appendChild(td);
-          });
+          function td(txt) { var e = document.createElement("td"); e.textContent = txt == null ? "" : txt; tr.appendChild(e); }
+          td(i + 1);
+          td(fmtDate(r.dataInscricao));
+          td(r.nome); td(r.telefone); td(r.email);
+          td(r.endereco); td(r.congregacao); td(r.condicao);
+          td(r.forma_pagamento); td(r.parcelamento);
+          var tdComp = document.createElement("td");
+          if (r.comprovanteUrl) {
+            var a = document.createElement("a"); a.href = r.comprovanteUrl; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Ver";
+            tdComp.appendChild(a);
+          } else { tdComp.textContent = "—"; }
+          tr.appendChild(tdComp);
           corpo.appendChild(tr);
         });
       }
 
-      function setFonte() {
-        var fonte = document.getElementById("fonte");
-        var rodape = document.getElementById("rodape");
-        if (usandoNuvem) {
-          fonte.textContent = "Inscrições em nuvem (Firebase) — visíveis de qualquer dispositivo";
-          rodape.innerHTML = "As inscrições ficam guardadas em nuvem no Firestore. " +
-            "Você também pode vê-las no <a href=\"https://console.firebase.google.com\" target=\"_blank\" rel=\"noopener\">Console do Firebase</a>.";
-        } else {
-          fonte.textContent = "Inscrições recebidas neste dispositivo (modo local)";
-          rodape.innerHTML = "⚠️ Modo local: as inscrições estão salvas apenas neste " +
-            "navegador. Para receber de qualquer dispositivo, configure o Firebase em <code>js/config.js</code> (veja o README).";
-        }
-      }
-
-      function carregar() {
-        var p = usandoNuvem ? loadCloud() : Promise.resolve(loadLocal());
-        return p.then(function (list) {
-          dados = list;
-          render();
-        }).catch(function (err) {
-          console.error(err);
-          alert("Não foi possível carregar as inscrições da nuvem.\n\n" +
-            "Verifique a configuração do Firebase e as regras do Firestore.\n\n" + err.message);
+      // ---------- Exportações ----------
+      function linhasExport() {
+        return filtrados.map(function (r) {
+          return [fmtDate(r.dataInscricao), r.nome, r.telefone, r.email, r.endereco,
+            r.congregacao, r.condicao, r.forma_pagamento, r.parcelamento, r.comprovanteUrl || ""];
         });
       }
-
       function download(filename, content, type) {
         var blob = new Blob([content], { type: type });
         var url = URL.createObjectURL(blob);
@@ -152,50 +276,45 @@
         document.body.appendChild(a); a.click();
         document.body.removeChild(a); URL.revokeObjectURL(url);
       }
-
-      function toCSV(list) {
-        var esc = function (v) {
-          v = v == null ? "" : String(v);
-          return '"' + v.replace(/"/g, '""') + '"';
-        };
+      $("btn-csv").addEventListener("click", function () {
+        if (!filtrados.length) return alert("Não há inscrições para exportar.");
+        var esc = function (v) { v = v == null ? "" : String(v); return '"' + v.replace(/"/g, '""') + '"'; };
         var rows = [LABELS.map(esc).join(",")];
-        list.forEach(function (r) {
-          rows.push(COLS.map(function (c) {
-            return esc(c === "dataInscricao" ? fmtDate(r[c]) : r[c]);
-          }).join(","));
+        linhasExport().forEach(function (l) { rows.push(l.map(esc).join(",")); });
+        download("inscricoes.csv", "﻿" + rows.join("\r\n"), "text/csv;charset=utf-8");
+      });
+      $("btn-xlsx").addEventListener("click", function () {
+        if (!filtrados.length) return alert("Não há inscrições para exportar.");
+        var aoa = [LABELS].concat(linhasExport());
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Inscrições");
+        XLSX.writeFile(wb, "inscricoes.xlsx");
+      });
+      $("btn-pdf").addEventListener("click", function () {
+        if (!filtrados.length) return alert("Não há inscrições para exportar.");
+        var jsPDF = window.jspdf.jsPDF;
+        var doc = new jsPDF({ orientation: "landscape" });
+        doc.setFontSize(14);
+        doc.text("Inscrições — " + (CONFIG.CURSO || "Curso"), 14, 15);
+        doc.setFontSize(9);
+        doc.text("Total: " + filtrados.length + "  |  Arrecadação prevista: R$ " + (dados.length * VALOR).toLocaleString("pt-BR"), 14, 21);
+        var cols = ["Data", "Nome", "Telefone", "E-mail", "Congregação", "Condição", "Pgto", "Parc."];
+        var rows = filtrados.map(function (r) {
+          return [fmtDate(r.dataInscricao), r.nome, r.telefone, r.email, r.congregacao, r.condicao, r.forma_pagamento, r.parcelamento];
         });
-        return "﻿" + rows.join("\r\n");
+        doc.autoTable({ head: [cols], body: rows, startY: 26, styles: { fontSize: 8 }, headStyles: { fillColor: [11, 37, 69] } });
+        doc.save("inscricoes.pdf");
+      });
+
+      // ---------- Rodapé ----------
+      var rodape = $("rodape");
+      if (usandoNuvem) {
+        rodape.innerHTML = "Inscrições guardadas em nuvem (Firebase/Firestore). " +
+          "Você também pode vê-las no <a href=\"https://console.firebase.google.com\" target=\"_blank\" rel=\"noopener\">Console do Firebase</a>.";
+      } else {
+        rodape.innerHTML = "⚠️ Modo local: inscrições salvas apenas neste navegador. Configure o Firebase em <code>js/config.js</code>.";
       }
-
-      document.getElementById("btn-csv").addEventListener("click", function () {
-        if (!dados.length) return alert("Não há inscrições para exportar.");
-        download("inscricoes.csv", toCSV(dados), "text/csv;charset=utf-8");
-      });
-      document.getElementById("btn-json").addEventListener("click", function () {
-        if (!dados.length) return alert("Não há inscrições para exportar.");
-        download("inscricoes.json", JSON.stringify(dados, null, 2), "application/json");
-      });
-      document.getElementById("btn-limpar").addEventListener("click", function () {
-        if (usandoNuvem) {
-          if (!dados.length) return alert("Não há inscrições para apagar.");
-          if (!confirm("Apagar TODAS as " + dados.length + " inscrições da NUVEM? Esta ação não pode ser desfeita.")) return;
-          var batch = window.FIRESTORE.batch();
-          dados.forEach(function (r) {
-            if (r._id) batch.delete(window.FIRESTORE.collection(COLLECTION).doc(r._id));
-          });
-          batch.commit().then(carregar).catch(function (err) {
-            alert("Erro ao apagar: " + err.message);
-          });
-        } else {
-          if (confirm("Tem certeza que deseja apagar TODAS as inscrições salvas neste dispositivo? Esta ação não pode ser desfeita.")) {
-            localStorage.removeItem(KEY);
-            carregar();
-          }
-        }
-      });
-
-      setFonte();
-      carregar();
     })();
   </script>
 </body>
