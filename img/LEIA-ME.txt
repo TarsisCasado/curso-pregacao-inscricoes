@@ -1,0 +1,19 @@
+FOTO DO MINISTRANTE
+===================
+
+Coloque a foto do Adelziro Junior nesta pasta com o nome exato:
+
+    adelziro.jpg
+
+Recomendações:
+- Formato JPG ou PNG (se usar PNG, ajuste o caminho em js/config.js → INSTRUTOR.foto).
+- Proporção aproximada de retrato (ex.: 800x960 px). A imagem é exibida
+  recortada em um quadro vertical com a parte de cima priorizada (rosto).
+
+Como adicionar pelo site do GitHub (sem usar comandos):
+1. Abra o repositório no GitHub e entre na pasta "img".
+2. Clique em "Add file" → "Upload files".
+3. Arraste a foto, renomeie para "adelziro.jpg" e confirme (Commit changes).
+
+Enquanto a foto não estiver aqui, o site mostra automaticamente as iniciais
+do instrutor no lugar da imagem.

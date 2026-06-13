@@ -1,25 +1,13 @@
 /**
  * Configuração do sistema de inscrição.
  *
- * ┌─────────────────────────────────────────────────────────────────────┐
- * │ ARMAZENAMENTO EM NUVEM (Firebase / Firestore) — RECOMENDADO           │
- * └─────────────────────────────────────────────────────────────────────┘
+ * ARMAZENAMENTO EM NUVEM (Firebase / Firestore)
  * As inscrições ficam guardadas em nuvem (banco de dados do Google),
- * acessíveis de qualquer dispositivo — sem precisar de planilha.
- *
- * Como configurar (passo a passo no README.md):
- *   1. Crie um projeto gratuito em https://console.firebase.google.com
- *   2. Ative o "Cloud Firestore" (modo de produção).
- *   3. Em "Configurações do projeto" → "Seus apps" → adicione um app Web (</>)
- *      e copie o objeto "firebaseConfig".
- *   4. Cole os valores em FIREBASE abaixo.
- *
- * Se FIREBASE ficar sem preencher, o sistema usa o "modo local":
- * as inscrições são salvas apenas no navegador (localStorage).
+ * acessíveis apenas ao administrador autenticado — sem planilha.
+ * Passo a passo de configuração no README.md.
  */
 window.INSCRICAO_CONFIG = {
-  // Cole aqui o firebaseConfig do seu projeto (Console do Firebase).
-  // Deixe os campos vazios para usar o modo local.
+  // Credenciais do projeto Firebase (Console do Firebase → Configurações).
   FIREBASE: {
     apiKey: "AIzaSyCtMkbX0IcQJ1x2obJWit39SXrqWOidde8",
     authDomain: "curso-pregacao.firebaseapp.com",
@@ -29,16 +17,31 @@ window.INSCRICAO_CONFIG = {
     appId: "1:860878466477:web:811bed2912bf11ff724524",
   },
 
-  // Nome da "coleção" onde as inscrições serão guardadas no Firestore.
+  // Coleção do Firestore onde as inscrições são guardadas.
   COLLECTION: "inscricoes",
 
-  // (Opcional) Endpoint de formulário (Formspree/Apps Script) como alternativa.
-  // Só é usado se FIREBASE não estiver configurado.
-  FORM_ENDPOINT: "",
+  // Pasta no Firebase Storage para os comprovantes de pagamento.
+  STORAGE_FOLDER: "comprovantes",
 
-  // Nome do curso (usado nas mensagens e no assunto do e-mail).
+  // ----- Conteúdo do curso -----
   CURSO: "Curso de Noções Básicas de Pregação e Oratória",
 
-  // Chave de armazenamento local (fallback / cópia de segurança no aparelho).
+  INSTRUTOR: {
+    nome: "Adelziro Junior",
+    // Foto do ministrante. Coloque o arquivo em img/adelziro.jpg
+    // (ou troque o caminho/URL aqui). Se não existir, mostra as iniciais.
+    foto: "img/adelziro.jpg",
+    bio:
+      "Curso ministrado por Adelziro Junior, Graduado em Bacharel em Teologia " +
+      "e Presidente do Conselho de Doutrina, Educação e Cultura da CONADEC.",
+  },
+
+  // Investimento (R$). Usado no site e no cálculo de arrecadação prevista.
+  VALOR: 100,
+
+  // (Opcional) Endpoint Formspree, usado só se o Firebase não estiver configurado.
+  FORM_ENDPOINT: "",
+
+  // Chave de armazenamento local (cópia de segurança no aparelho).
   STORAGE_KEY: "inscricoes_curso_pregacao",
 };

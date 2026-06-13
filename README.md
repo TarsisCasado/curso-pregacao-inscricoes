@@ -1,116 +1,107 @@
 # curso-pregacao-inscricoes
 
-Sistema de inscrição online — **Curso de Noções Básicas de Pregação e Oratória**
-(Adelziro Junior / CONADEC).
+Sistema de inscrição online — **Curso de Noções Básicas de Pregação e Oratória**,
+ministrado por **Adelziro Junior** (curso independente).
 
 Site estático (HTML, CSS e JavaScript puro), pronto para publicar no **GitHub Pages**.
 
 ## ✨ Funcionalidades
 
-- Página de apresentação do curso (conteúdo, informações e instrutor).
+- Landing page elegante (azul escuro, dourado e branco) com apresentação do
+  curso, do ministrante (com foto) e do investimento.
 - Formulário de inscrição responsivo com validação em português:
-  - nome, e-mail, telefone/WhatsApp (com máscara), idade, cidade, igreja,
-    função/ministério, experiência, motivação e consentimento de dados.
-- **Armazenamento em nuvem (Firebase/Firestore)** — as inscrições ficam
-  guardadas em um banco de dados gratuito do Google, acessíveis de qualquer
-  dispositivo, **sem planilha**. (Alternativas: endpoint Formspree ou modo local.)
-- Cópia de segurança das inscrições no navegador (`localStorage`).
-- **Área administrativa** (`admin.html`) para visualizar e exportar as
-  inscrições em **CSV** ou **JSON**.
+  - **Dados pessoais:** nome, endereço completo, telefone/WhatsApp (com máscara), e-mail.
+  - **Dados ministeriais:** congregação e condição ministerial (com campo "Outro").
+  - **Pagamento:** forma (PIX/Dinheiro) e parcelamento (à vista / 2x).
+  - **Comprovante:** upload opcional de JPG/PNG/PDF.
+- **Armazenamento em nuvem (Firebase/Firestore)** — inscrições centralizadas,
+  acessíveis só ao administrador, **sem planilha**.
+- **Comprovantes** guardados no Firebase Storage, vinculados ao inscrito.
+- **Área administrativa** (`admin.html`) com **login** (Firebase Auth):
+  - Indicadores: total de inscritos, arrecadação prevista, pagamentos à vista
+    e parcelados, inscrições por congregação.
+  - Filtros (congregação, condição, pagamento) e busca por nome.
+  - Exportação em **Excel (.xlsx)**, **PDF** e **CSV**.
 
 ## 📁 Estrutura
 
 ```
 .
-├── index.html          # Página principal + formulário de inscrição
-├── admin.html          # Painel para visualizar/exportar inscrições
-├── css/styles.css      # Estilos
+├── index.html          # Landing page + formulário de inscrição
+├── admin.html          # Login + dashboard administrativo
+├── css/styles.css      # Estilos (azul escuro / dourado / branco)
+├── img/                # Foto do ministrante (adelziro.jpg)
 ├── js/
-│   ├── config.js       # Configuração (Firebase, endpoint, nome do curso)
-│   ├── firebase.js     # Inicialização do Firebase/Firestore
-│   └── app.js          # Validação, máscara e envio
+│   ├── config.js       # Configuração (Firebase, instrutor, valor)
+│   ├── firebase.js     # Inicialização Firestore + Auth + Storage
+│   └── app.js          # Validação, máscara, upload e envio
 └── .github/workflows/deploy.yml  # Publicação automática no GitHub Pages
 ```
 
 ## 🚀 Como publicar (GitHub Pages)
 
-1. Faça o merge deste conteúdo na branch `main`.
-2. No repositório, vá em **Settings → Pages**.
-3. Em **Build and deployment → Source**, selecione **GitHub Actions**.
-4. A cada push na `main`, o workflow publica o site automaticamente.
+1. Faça o merge na branch `main`.
+2. **Settings → Pages → Source**: selecione a `main` (root) ou **GitHub Actions**.
+3. O site fica em `https://<seu-usuario>.github.io/curso-pregacao-inscricoes/`.
 
-O site ficará disponível em:
-`https://<seu-usuario>.github.io/curso-pregacao-inscricoes/`
+## ⚙️ Configuração do Firebase (passos no Console)
 
-## ☁️ Guardando as inscrições em nuvem (Firebase) — recomendado
+O `js/config.js` já vem com as credenciais do projeto `curso-pregacao`. Para o
+sistema funcionar por completo, ative os recursos abaixo no
+[Console do Firebase](https://console.firebase.google.com):
 
-Assim as inscrições ficam num banco de dados gratuito do Google, acessíveis de
-qualquer dispositivo — **sem planilha** e sem manter servidor.
+### 1. Firestore (banco de dados) — regras de segurança
 
-### Passo a passo
+Em **Firestore Database → Regras**, cole e publique:
 
-1. Acesse o [Console do Firebase](https://console.firebase.google.com) e clique
-   em **Adicionar projeto** (pode usar sua conta Google). Dê um nome
-   (ex.: `curso-pregacao`) e conclua a criação.
-2. No menu lateral, abra **Build → Firestore Database** e clique em
-   **Criar banco de dados**. Escolha uma região (ex.: `southamerica-east1`) e
-   inicie em **modo de produção**.
-3. Registre um app Web: clique no ícone **`</>`** na visão geral do projeto,
-   dê um apelido e **copie o objeto `firebaseConfig`** que aparece.
-4. Cole esses valores em `js/config.js`, no campo `FIREBASE`:
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /inscricoes/{doc} {
+      allow create: if true;                      // qualquer visitante se inscreve
+      allow read, update, delete: if request.auth != null;  // só admin logado
+    }
+  }
+}
+```
 
-   ```js
-   window.INSCRICAO_CONFIG = {
-     FIREBASE: {
-       apiKey: "AIza...",
-       authDomain: "curso-pregacao.firebaseapp.com",
-       projectId: "curso-pregacao",
-       storageBucket: "curso-pregacao.appspot.com",
-       messagingSenderId: "123456789",
-       appId: "1:123...:web:abc...",
-     },
-     COLLECTION: "inscricoes",
-     // ...
-   };
-   ```
+### 2. Authentication (login do administrador)
 
-5. **Regras de segurança do Firestore.** Em **Firestore → Regras**, cole o
-   bloco abaixo. Ele permite que qualquer visitante *crie* uma inscrição, mas
-   só você (autenticado) consegue *ler/apagar* — protegendo os dados pessoais:
+1. **Build → Authentication → Começar**.
+2. Em **Sign-in method**, ative **E-mail/senha**.
+3. Aba **Users → Adicionar usuário**: cadastre o e-mail e a senha do
+   administrador (Adelziro). Esse será o login usado em `admin.html`.
+   > As senhas são armazenadas com criptografia pelo próprio Firebase.
+
+### 3. Storage (comprovantes) — opcional
+
+1. **Build → Storage → Começar** (pode exigir o plano *Blaze*, que tem cota
+   gratuita; só é cobrado acima do limite).
+2. Em **Storage → Regras**, cole e publique:
 
    ```
    rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /inscricoes/{doc} {
-         allow create: if true;
-         allow read, update, delete: if request.auth != null;
+   service firebase.storage {
+     match /b/{bucket}/o {
+       match /comprovantes/{arquivo} {
+         allow create: if true;                 // visitante envia comprovante
+         allow read: if request.auth != null;   // só admin logado lê
        }
      }
    }
    ```
 
-   > **Importante:** com essas regras, a página `admin.html` precisa de login
-   > para listar as inscrições. A forma mais simples de ver os dados é pelo
-   > próprio **Console do Firebase → Firestore Database**. Se preferir abrir o
-   > `admin.html` sem login (apenas para testes), troque a linha de leitura por
-   > `allow read: if true;` — mas aí qualquer pessoa com o link conseguiria ver
-   > os dados, o que **não é recomendado** por causa da LGPD.
+   Se o Storage não for ativado, a inscrição funciona normalmente — apenas o
+   anexo do comprovante é ignorado.
 
-6. Faça commit e publique. Pronto: cada inscrição aparece no Firestore.
+## 🖼️ Foto do ministrante
 
-### Alternativa simples: Formspree (por e-mail)
-
-Se preferir receber cada inscrição por e-mail sem configurar banco, crie um
-formulário no [Formspree](https://formspree.io) e cole a URL em `FORM_ENDPOINT`
-no `js/config.js` (deixe `FIREBASE` em branco).
-
-Sem Firebase nem endpoint, as inscrições ficam salvas apenas no navegador
-(modo local) e podem ser exportadas em `admin.html`.
+Coloque a foto em `img/adelziro.jpg` (veja `img/LEIA-ME.txt`). Pelo site do
+GitHub: pasta `img` → **Add file → Upload files** → enviar como `adelziro.jpg`.
+Sem a foto, o site mostra as iniciais do instrutor automaticamente.
 
 ## 🧪 Rodando localmente
-
-Basta abrir `index.html` no navegador, ou servir a pasta:
 
 ```bash
 python3 -m http.server 8000

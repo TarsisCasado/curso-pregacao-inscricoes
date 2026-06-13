@@ -12,6 +12,32 @@
 
   if (anoEl) anoEl.textContent = new Date().getFullYear();
 
+  // ---- Instrutor (nome, foto, bio configuráveis) ----
+  (function preencheInstrutor() {
+    var inst = CONFIG.INSTRUTOR || {};
+    var nomeEl = document.getElementById("instrutor-nome");
+    var bioEl = document.getElementById("instrutor-bio");
+    var fotoEl = document.getElementById("instrutor-foto");
+    if (nomeEl && inst.nome) nomeEl.textContent = inst.nome;
+    if (bioEl && inst.bio) bioEl.textContent = inst.bio;
+    if (fotoEl) {
+      if (inst.foto) {
+        fotoEl.src = inst.foto;
+        fotoEl.onerror = function () { mostraIniciais(fotoEl, inst.nome); };
+      } else {
+        mostraIniciais(fotoEl, inst.nome);
+      }
+    }
+  })();
+
+  function mostraIniciais(imgEl, nome) {
+    var span = document.createElement("div");
+    span.className = "instructor__photo instructor__placeholder";
+    span.textContent = (nome || "?")
+      .split(/\s+/).slice(0, 2).map(function (p) { return p.charAt(0); }).join("").toUpperCase();
+    if (imgEl.parentNode) imgEl.parentNode.replaceChild(span, imgEl);
+  }
+
   // ---- Máscara de telefone ----
   var telefone = document.getElementById("telefone");
   if (telefone) {
@@ -27,6 +53,16 @@
     });
   }
 
+  // ---- Campo condicional "Outro" ----
+  var condicao = document.getElementById("condicao");
+  var campoOutro = document.getElementById("campo-outro");
+  var condicaoOutro = document.getElementById("condicao_outro");
+  if (condicao && campoOutro) {
+    condicao.addEventListener("change", function () {
+      campoOutro.hidden = condicao.value !== "Outro";
+    });
+  }
+
   // ---- Validação ----
   function setError(name, message) {
     var input = form.elements[name];
@@ -35,13 +71,18 @@
     if (errEl) errEl.textContent = message || "";
   }
 
+  function reqText(name, min, msg) {
+    var v = (new FormData(form).get(name) || "").trim();
+    if (v.length < (min || 1)) { setError(name, msg); return false; }
+    setError(name, ""); return true;
+  }
+
   function validate() {
     var ok = true;
     var data = new FormData(form);
 
-    var nome = (data.get("nome") || "").trim();
-    if (nome.length < 3) { setError("nome", "Informe seu nome completo."); ok = false; }
-    else setError("nome", "");
+    if (!reqText("nome", 3, "Informe seu nome completo.")) ok = false;
+    if (!reqText("endereco", 5, "Informe seu endereço completo.")) ok = false;
 
     var email = (data.get("email") || "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("email", "E-mail inválido."); ok = false; }
@@ -51,10 +92,27 @@
     if (tel.length < 10) { setError("telefone", "Informe um telefone válido com DDD."); ok = false; }
     else setError("telefone", "");
 
-    var idade = data.get("idade");
-    if (idade && (Number(idade) < 10 || Number(idade) > 120)) {
-      setError("idade", "Idade inválida."); ok = false;
-    } else setError("idade", "");
+    if (!reqText("congregacao", 2, "Informe sua congregação.")) ok = false;
+
+    if (!data.get("condicao")) { setError("condicao", "Selecione a condição ministerial."); ok = false; }
+    else setError("condicao", "");
+
+    if (data.get("condicao") === "Outro" && !(data.get("condicao_outro") || "").trim()) {
+      setError("condicao_outro", "Especifique a condição ministerial."); ok = false;
+    } else setError("condicao_outro", "");
+
+    if (!data.get("forma_pagamento")) { setError("forma_pagamento", "Selecione a forma de pagamento."); ok = false; }
+    else setError("forma_pagamento", "");
+
+    if (!data.get("parcelamento")) { setError("parcelamento", "Selecione o parcelamento."); ok = false; }
+    else setError("parcelamento", "");
+
+    var file = data.get("comprovante");
+    if (file && file.size) {
+      if (file.size > 5 * 1024 * 1024) { setError("comprovante", "Arquivo maior que 5 MB."); ok = false; }
+      else if (!/(jpe?g|png|pdf)$/i.test(file.name)) { setError("comprovante", "Use JPG, PNG ou PDF."); ok = false; }
+      else setError("comprovante", "");
+    } else setError("comprovante", "");
 
     if (!form.elements["consentimento"].checked) {
       setError("consentimento", "É necessário autorizar o uso dos dados."); ok = false;
@@ -67,10 +125,18 @@
     var data = new FormData(form);
     var obj = {};
     data.forEach(function (value, key) {
+      if (key === "comprovante") return; // tratado à parte
       obj[key] = typeof value === "string" ? value.trim() : value;
     });
     obj.consentimento = form.elements["consentimento"].checked;
+    // Normaliza a condição ministerial.
+    if (obj.condicao === "Outro" && obj.condicao_outro) {
+      obj.condicao = obj.condicao_outro.trim();
+    }
+    delete obj.condicao_outro;
     obj.curso = CONFIG.CURSO || "";
+    obj.valor = CONFIG.VALOR || null;
+    obj.comprovanteUrl = "";
     obj.dataInscricao = new Date().toISOString();
     return obj;
   }
@@ -89,6 +155,21 @@
     form.hidden = true;
     success.hidden = false;
     success.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // Faz upload do comprovante (se houver) e retorna a URL pública.
+  function uploadComprovante() {
+    var file = form.elements["comprovante"] && form.elements["comprovante"].files[0];
+    if (!file || !window.FIREBASE_STORAGE) return Promise.resolve("");
+    var folder = CONFIG.STORAGE_FOLDER || "comprovantes";
+    var nome = Date.now() + "_" + file.name.replace(/[^\w.\-]/g, "_");
+    var ref = window.FIREBASE_STORAGE.ref(folder + "/" + nome);
+    return ref.put(file).then(function (snap) {
+      return snap.ref.getDownloadURL();
+    }).catch(function (err) {
+      console.warn("Falha no upload do comprovante (a inscrição segue normalmente):", err);
+      return "";
+    });
   }
 
   function sendToEndpoint(record) {
@@ -122,36 +203,37 @@
     var done = function () {
       saveLocal(record);
       btnEnviar.disabled = false;
-      btnEnviar.textContent = "Confirmar inscrição";
+      btnEnviar.textContent = "Realizar inscrição";
       showSuccess();
     };
 
     var falhaEnvio = function (err) {
       console.error(err);
-      // Mesmo com erro de rede, mantemos a cópia local para não perder o dado.
       saveLocal(record);
       btnEnviar.disabled = false;
-      btnEnviar.textContent = "Confirmar inscrição";
+      btnEnviar.textContent = "Realizar inscrição";
       alert(
         "Não foi possível enviar agora, mas sua inscrição foi salva neste " +
         "dispositivo. Por favor, tente novamente ou entre em contato."
       );
     };
 
-    if (window.FIRESTORE) {
-      // Armazenamento em nuvem (Firebase/Firestore).
-      sendToFirestore(record).then(done).catch(falhaEnvio);
-    } else if (CONFIG.FORM_ENDPOINT) {
-      sendToEndpoint(record).then(done).catch(falhaEnvio);
-    } else {
-      // Modo local (sem nuvem nem endpoint configurado).
-      setTimeout(done, 400);
-    }
+    // 1) Upload do comprovante (se houver); 2) grava a inscrição.
+    uploadComprovante().then(function (url) {
+      record.comprovanteUrl = url || "";
+      if (window.FIRESTORE) {
+        return sendToFirestore(record).then(done);
+      } else if (CONFIG.FORM_ENDPOINT) {
+        return sendToEndpoint(record).then(done);
+      }
+      return new Promise(function (r) { setTimeout(function () { done(); r(); }, 400); });
+    }).catch(falhaEnvio);
   });
 
   if (btnNova) {
     btnNova.addEventListener("click", function () {
       form.reset();
+      if (campoOutro) campoOutro.hidden = true;
       form.hidden = false;
       success.hidden = true;
       form.scrollIntoView({ behavior: "smooth", block: "start" });
