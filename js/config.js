@@ -30,7 +30,7 @@ window.INSCRICAO_CONFIG = {
     nome: "Adelziro Junior",
     // Foto do ministrante. Coloque o arquivo em img/adelziro.jpg
     // (ou troque o caminho/URL aqui). Se não existir, mostra as iniciais.
-    foto: "img/adelziro.jpg",
+    foto: "img/adelziro.jpg.jpg",
     bio:
       "Curso ministrado por Adelziro Junior, Graduado em Bacharel em Teologia " +
       "e Presidente do Conselho de Doutrina, Educação e Cultura da CONADEC.",
